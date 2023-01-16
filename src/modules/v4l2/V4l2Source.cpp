@@ -180,7 +180,7 @@ std::string parse_v4l2_fmt(uint32_t f) {
 
 std::unique_ptr<v4l2_device> V4l2Source::open_device()
 {
-	auto fd_ = make_unique<v4l2_device>(filename_);
+	auto fd_ = std::make_unique<v4l2_device>(filename_);
 	if (!fd_->set_input(input_) && input_ != 0) {
 		// Failure to set format is fatal, unless it's for input_ == 0
 		throw std::runtime_error("Failed to set input");
