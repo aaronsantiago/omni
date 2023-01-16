@@ -31,7 +31,7 @@ public:
 	~BasicPipeGenerator() noexcept {}
 };
 
-using PipeGenerator = utils::Singleton<BasicPipeGenerator<Pipe, std::string>>;
+using PipeGenerator = yuri::utils::Singleton<BasicPipeGenerator<Pipe, std::string>>;
 
 #define REGISTER_PIPE(name, type) namespace { bool reg_ ## type = yuri::core::PipeGenerator::get_instance().register_generator(name,type::generate, type::configure); }
 

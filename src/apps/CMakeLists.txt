@@ -56,3 +56,17 @@ add_executable(yuri_simple
 target_link_libraries ( yuri_simple ${LIBNAME} ${Boost_REGEX_LIBRARY})
 install(TARGETS yuri_simple RUNTIME DESTINATION bin)
 ENDIF()
+
+find_package(Pistache)
+IF(Pistache_FOUND)
+add_executable(yuri_rest
+						rest/json.hpp
+						rest/rest_utils.cpp
+						rest/rest_utils.h
+						rest/RESTBuilder.h
+						rest/RESTBuilder.cpp
+						yuri_rest.cpp)
+target_link_libraries (yuri_rest ${Pistache_LIBRARIES} ${LIBNAME} ${Boost_REGEX_LIBRARY})
+install(TARGETS yuri_rest RUNTIME DESTINATION bin)
+ENDIF()
+
