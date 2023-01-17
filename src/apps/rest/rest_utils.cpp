@@ -111,16 +111,19 @@ void get_params(nlohmann::json& json, const std::string name, const yuri::core::
 		const auto& param = p.second;
 		const std::string& pname = param.get_name();
 		if (pname[0] != '_') {
+			nlohmann::json params_json;
+			params_json["name"] = pname;
 			try {
 				const auto value = param_value(param.get_value());
-				json[name]["params"][pname]["value"] = value;
+				params_json["value"] = value;
 				const std::string &d = param.get_description();
 				if (!d.empty()) {
-					json[name]["params"][pname]["description"] = d;
+					params_json["description"] = d;
 				}
 			} catch (const std::exception& e) {
-				json[name]["params"][pname]["value"] = "Error getting value: \"" + std::string(e.what()) + "\"";
+				params_json["value"] = "Error getting value: \"" + std::string(e.what()) + "\"";
 			}
+			json["params"].push_back(params_json);
 		}
 	}
 }
@@ -128,13 +131,15 @@ void get_params(nlohmann::json& json, const std::string name, const yuri::core::
 void get_classes(nlohmann::json& json) {
 	auto& generator = yuri::IOThreadGenerator::get_instance();
 	for (const auto& name: generator.list_keys()) {
-		json[name] = {};
+		nlohmann::json class_json;
+		class_json["name"] = name;
 		const auto& params = generator.configure(name);
 		const std::string& desc = params.get_description();
 		if (!desc.empty()) {
-			json[name]["description"] = desc;
+			class_json["description"] = desc;
 		}
-		get_params(json, name, params);
+		get_params(class_json, name, params);
+		json.push_back(class_json);
 	}
 }
 
@@ -194,8 +199,11 @@ void get_pipes(nlohmann::json& json) {
 	for (const auto& name: generator.list_keys()) {
 		const auto& params = generator.configure(name);
 		const std::string& desc = params.get_description();
-		json[name]["description"] = desc;
-		get_params(json, name, params);
+		nlohmann::json pipe_json;
+		pipe_json["name"] = name;
+		pipe_json["description"] = desc;
+		get_params(pipe_json, name, params);
+		json.push_back(pipe_json);
 	}
 }
 
