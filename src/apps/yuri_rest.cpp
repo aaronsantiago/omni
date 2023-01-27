@@ -179,6 +179,11 @@ void specifiers(const Pistache::Rest::Request& request, Pistache::Http::Response
 	generic_answer(request, response, yuri::web::get_specifiers);
 }
 
+void options(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+    fill_response(response);
+    response.send(Pistache::Http::Code::Ok);
+}
+
 int main(int argc, char** argv) {
 #if defined YURI_POSIX
 	memset (&act, '\0', sizeof(act));
@@ -205,16 +210,18 @@ int main(int argc, char** argv) {
 
 	{
 		using namespace Pistache::Rest;
-		Routes::Post(router, "/add_node",   Routes::bind(&add_node   ));
-		Routes::Post(router, "/add_link",   Routes::bind(&add_link   ));
-		Routes::Get (router, "/start",      Routes::bind(&start      ));
-		Routes::Get (router, "/stop",       Routes::bind(&stop       ));
-		Routes::Get (router, "/inputs",     Routes::bind(&inputs     ));
-		Routes::Get (router, "/classes",    Routes::bind(&classes    ));
-		Routes::Get (router, "/formats",    Routes::bind(&formats    ));
-		Routes::Get (router, "/converters", Routes::bind(&converters ));
-		Routes::Get (router, "/pipes",      Routes::bind(&pipes      ));
-		Routes::Get (router, "/specifiers", Routes::bind(&specifiers ));
+		Routes::Options(router, "*",           Routes::bind(&options   ));
+		Routes::Options(router, "/*",          Routes::bind(&options   ));
+		Routes::Post   (router, "/node",       Routes::bind(&add_node  ));
+		Routes::Post   (router, "/link",       Routes::bind(&add_link  ));
+		Routes::Put    (router, "/start",      Routes::bind(&start     ));
+		Routes::Put    (router, "/stop",       Routes::bind(&stop      ));
+		Routes::Get    (router, "/inputs",     Routes::bind(&inputs    ));
+		Routes::Get    (router, "/classes",    Routes::bind(&classes   ));
+		Routes::Get    (router, "/formats",    Routes::bind(&formats   ));
+		Routes::Get    (router, "/converters", Routes::bind(&converters));
+		Routes::Get    (router, "/pipes",      Routes::bind(&pipes     ));
+		Routes::Get    (router, "/specifiers", Routes::bind(&specifiers));
 	}
 
 	http_endpoint->setHandler(router.handler());
