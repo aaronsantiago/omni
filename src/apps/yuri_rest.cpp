@@ -85,7 +85,8 @@ void add_node(const Pistache::Rest::Request& request, Pistache::Http::ResponseWr
 
 	yuri::core::Parameters params;	
 	for (auto& el : j_request["params"].items()) {
-		params[el.key()] = el.value().dump();
+		nlohmann::json param = el.value();
+		params[param["name"]] = param["value"];
 	}
 	builder->add_node(j_request["name"], j_request["class"], params);
 	fill_response(response);
@@ -100,7 +101,8 @@ void add_link(const Pistache::Rest::Request& request, Pistache::Http::ResponseWr
 
 	yuri::core::Parameters params;	
 	for (auto& el : j_request["params"].items()) {
-		params[el.key()] = el.value().dump();
+		nlohmann::json param = el.value();
+		params[param["name"]] = param["value"];
 	}
 	builder->add_link(j_request["src"].get<std::string>()+"_"+j_request["dst"].get<std::string>(), j_request["class"], params, j_request["src"], j_request["dst"]);
 	fill_response(response);
