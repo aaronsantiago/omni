@@ -19,7 +19,16 @@
 #include <pistache/description.h>
 #include <pistache/endpoint.h>
 
-yuri::log::Log l(std::clog);
+#include <boost/iostreams/tee.hpp>
+#include <boost/iostreams/stream.hpp>
+
+std::stringstream web_log;
+typedef boost::iostreams::tee_device<std::ostream, std::stringstream> TeeDev;
+typedef boost::iostreams::stream<TeeDev> TeeStream;
+TeeDev tee_dev(std::clog, web_log);
+TeeStream tee_log(tee_dev);
+
+yuri::log::Log l(tee_log);
 std::shared_ptr<yuri::web::RESTBuilder> builder;
 bool running = true;
 
@@ -49,6 +58,13 @@ void sigHandler(int sig, siginfo_t */*siginfo*/, void */*context*/) {
 	sigaction(SIGINT,&act,0);
 }
 #endif
+
+std::vector<std::string> explode(std::string const & text, char delim) {
+    std::vector<std::string> result;
+    std::istringstream iss(text);
+    for (std::string token; std::getline(iss, token, delim);) result.push_back(std::move(token));
+    return result;
+}
 
 using namespace yuri;
 
@@ -179,6 +195,14 @@ void specifiers(const Pistache::Rest::Request& request, Pistache::Http::Response
 	generic_answer(request, response, yuri::web::get_specifiers);
 }
 
+void get_log(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
+	fill_response(response);
+	nlohmann::json j_answer;
+	j_answer["log"] = explode(web_log.str(), '\n');
+	j_answer["message"] = "Sending all the records.";
+    response.send(Pistache::Http::Code::Ok, j_answer.dump());
+}
+
 void options(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
     fill_response(response);
     response.send(Pistache::Http::Code::Ok);
@@ -197,7 +221,7 @@ int main(int argc, char** argv) {
 #endif
 #endif
 
-	l.set_flags(yuri::log::info|yuri::log::show_level|yuri::log::use_colors|yuri::log::show_time|yuri::log::show_date);
+	l.set_flags(yuri::log::info|yuri::log::show_level|yuri::log::show_time|yuri::log::show_date);
 	int ret = 0;
 
 	auto opts = Pistache::Http::Endpoint::options().threads(2).flags(Pistache::Tcp::Options::ReuseAddr);
@@ -222,13 +246,14 @@ int main(int argc, char** argv) {
 		Routes::Get    (router, "/converters", Routes::bind(&converters));
 		Routes::Get    (router, "/pipes",      Routes::bind(&pipes     ));
 		Routes::Get    (router, "/specifiers", Routes::bind(&specifiers));
+		Routes::Get    (router, "/log",        Routes::bind(&get_log   ));
 	}
 
 	http_endpoint->setHandler(router.handler());
 	http_endpoint->serveThreaded();
 
 	l[yuri::log::info] << "Server started on port " << http_endpoint->getPort();
-
+	
 	while (running){
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	}
