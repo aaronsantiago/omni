@@ -13,13 +13,15 @@
 #include "yuri/core/frame/CompressedVideoFrame.h"
 #include "yuri/core/utils/irange.h"
 
+#include <numeric>
+
 #ifdef HAP_USE_SNAPPY
 
 #include <snappy.h>
 #include <snappy-sinksource.h>
-#include <numeric>
 
 #endif
+
 namespace yuri {
     namespace hap_decoder {
 
@@ -209,8 +211,6 @@ namespace yuri {
             log[log::error] << "Compression supported not present!";
                         return {};
 #else
-
-
             if (!snappy::IsValidCompressedBuffer(reinterpret_cast<const char *>(info.data_start), info.size)) {
                 log[log::error] << "Data not valid snappy encoded frame!";
             }
@@ -321,11 +321,16 @@ namespace yuri {
                 chunk.data_start = info.data_start + chunk.offset;
                 offset += chunk.size;
                 if (chunk.snappy) {
+#ifdef HAP_USE_SNAPPY
                     chunk.uncompressed_size = snappy_uncompressed_size(log, chunk.data_start, chunk.size);
                     if (chunk.uncompressed_size == 0) {
                         log[log::error] << "Failed to get chunk's uncompressed size! ";
                         return {};
                     }
+#else
+                    log[log::error] << "Not supported compression!";
+                    return {};
+#endif
                 } else {
                     chunk.uncompressed_size = chunk.size;
                 }
@@ -351,6 +356,7 @@ namespace yuri {
                     uint8_t *out_ptr = &out_frame->get_data()[0];
                     for (auto &chunk: info.chunks) {
                         if (chunk.snappy) {
+#ifdef HAP_USE_SNAPPY
                             snappy::ByteArraySource src(reinterpret_cast<const char *>(chunk.data_start), chunk.size);
                             snappy::UncheckedByteArraySink sink(
                                     reinterpret_cast<char *>(out_ptr));
@@ -358,6 +364,10 @@ namespace yuri {
                                 log[log::warning] << "Failed to decompress data!";
                                 return {};
                             }
+#else
+                            log[log::error] << "Not supported compression!";
+                            return {};
+#endif
                         } else {
                             std::copy_n(chunk.data_start, chunk.uncompressed_size, out_ptr);
                         }
