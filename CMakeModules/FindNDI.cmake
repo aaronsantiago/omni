@@ -25,14 +25,14 @@
 SET(NDI_INSTALL_DIR $ENV{NDI_DIRECTORY})
 IF("${NDI_INSTALL_DIR}" STREQUAL "")
 	# No NDI_DIRECTORY set, so let's try defalt installation path
-	SET(NDI_INSTALL_DIR "/usr/local/ndi") 
+	SET(NDI_INSTALL_DIR "/usr/local") 
 ENDIF()
 find_path(NDI_NDI_INCLUDE_DIR Processing.NDI.Lib.h
 	${NDI_INSTALL_DIR}/include
 )
 
   
-find_library(NDI_NDI_LIBRARY ndi PATH ${NDI_INSTALL_DIR}/lib64)
+find_library(NDI_NDI_LIBRARY ndi PATH ${NDI_INSTALL_DIR}/lib64 ${NDI_INSTALL_DIR}/lib)
   
 
 if (NDI_NDI_LIBRARY AND NDI_NDI_INCLUDE_DIR)
