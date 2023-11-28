@@ -1,0 +1,3 @@
+add_subdirectory(ndi_blank)
+add_subdirectory(ndi_combine)
+add_subdirectory(ndi_scale)
