@@ -218,7 +218,7 @@ add_subdirectory(doc)
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_PACKAGE_VENDOR "st.dio s.r.o.")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "<zdenek@stdio.cz>>")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev, libgl1-mesa-dev, libavcodec-dev, libavformat-dev, libavutil-dev")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-all-dev, libgl1-mesa-dev, libavcodec-dev, libavformat-dev, libavutil-dev, libjsoncpp-dev")
 SET(CPACK_PACKAGE_CHECKSUM SHA256)
 
 # Simple hack to get detailed version

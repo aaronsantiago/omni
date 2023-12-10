@@ -12,6 +12,6 @@ SET (SRC NDIInput.cpp
 
 add_library(${MODULE} MODULE ${SRC})
 include_directories(${NDI_INCLUDE_DIRS}) 
-target_link_libraries(${MODULE} ${LIBNAME} ${NDI_LIBRARIES})
+target_link_libraries(${MODULE} ${LIBNAME})
 
 YURI_INSTALL_MODULE(${MODULE})
