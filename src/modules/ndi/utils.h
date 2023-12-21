@@ -7,13 +7,14 @@
 #include <iostream>
 #include <exception>
 
+#include <stdlib.h>
+#include <dlfcn.h>
+
 #include "yuri/exception/Exception.h"
 #include "yuri/core/utils/new_types.h"
 #include "yuri/core/frame/raw_frame_types.h"
 
 #include <Processing.NDI.Lib.h>
-
-typedef unsigned char byte;
 
 const NDIlib_v5* load_ndi_library(std::string ndi_path = "");
 yuri::format_t ndi_format_to_yuri (NDIlib_FourCC_type_e fmt);

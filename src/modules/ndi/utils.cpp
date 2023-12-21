@@ -1,8 +1,5 @@
 #include "utils.h"
 
-#include <stdlib.h>
-#include <dlfcn.h>
-
 using namespace yuri::core::raw_format;
 
 const NDIlib_v5* load_ndi_library(std::string ndi_path) {
