@@ -1,6 +1,10 @@
-/*
- * NDIInput.cpp
+/*!
+ * @file        NDIInput.cpp
+ * @author      Jiri Melnikov <jiri@melnikoff.org>
+ * @date        20.12.2023
+ *              Distributed under modified BSD Licence, details in file doc/LICENSE
  */
+
 
 #include "NDIInput.h"
 

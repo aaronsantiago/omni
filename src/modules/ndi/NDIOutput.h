@@ -1,6 +1,9 @@
-/*
- * NDIOuptu.h
-  */
+/*!
+ * @file        NDIOutput.h
+ * @author      Jiri Melnikov <jiri@melnikoff.org>
+ * @date        20.12.2023
+ *              Distributed under modified BSD Licence, details in file doc/LICENSE
+ */
 
 #ifndef NDIOUTPUT_H_
 #define NDIOUTPUT_H_

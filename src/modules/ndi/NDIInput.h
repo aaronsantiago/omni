@@ -1,6 +1,9 @@
-/*
- * NDIInput.h
-  */
+/*!
+ * @file        NDIInput.h
+ * @author      Jiri Melnikov <jiri@melnikoff.org>
+ * @date        20.12.2023
+ *              Distributed under modified BSD Licence, details in file doc/LICENSE
+ */
 
 #ifndef NDIINPUT_H_
 #define NDIINPUT_H_
