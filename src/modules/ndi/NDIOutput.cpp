@@ -139,34 +139,44 @@ void NDIOutput::events_sender() {
 
 bool NDIOutput::step() {
     auto frame_to_send = pop_frame(0);
+    // Skip if there is no frame to send
     if (!frame_to_send)
         return true;
-    if (frame_to_send->get_format() == yuri::core::compressed_frame::h264) {
-        vcmpframe_to_send_ = std::dynamic_pointer_cast<core::VideoFrame>(frame_to_send);
-        log[log::info] << "Compressed frame with resolution " << vcmpframe_to_send_->get_resolution() << " and format \"" << core::compressed_frame::get_format_name(vcmpframe_to_send_->get_format()) << "\" is not supported yet.";
+    // Skip if there are no connections
+    if (!NDIlib_->send_get_no_connections(pNDI_send_, 500)) {
         return true;
-    } else {
-        vframe_to_send_ = std::dynamic_pointer_cast<core::RawVideoFrame>(frame_to_send);
-        if (!vframe_to_send_)
-            return true;
-        NDIlib_video_frame_v2_t NDI_video_frame;
-        NDI_video_frame.xres = vframe_to_send_->get_width();
-        NDI_video_frame.yres = vframe_to_send_->get_height();
-        NDI_video_frame.FourCC = yuri_format_to_ndi(vframe_to_send_->get_format());
-        NDI_video_frame.line_stride_in_bytes = 0; // autodetect
-        if (fps_ > 0 && fps_ == std::ceil(fps_)) {
-            NDI_video_frame.frame_rate_N = 1000*fps_;
-            NDI_video_frame.frame_rate_D = 1000;
-        } else if (fps_ > 0) {
-            int fps = std::ceil(fps_);
-            NDI_video_frame.frame_rate_N = 1000*fps;
-            NDI_video_frame.frame_rate_D = 1001;
-        }
-        NDIlib_tally_t NDI_tally;
-        NDIlib_->send_get_tally(pNDI_send_, &NDI_tally, 0);
-        NDI_video_frame.p_data = PLANE_RAW_DATA(vframe_to_send_,0);
-        NDIlib_->send_send_video_v2(pNDI_send_, &NDI_video_frame);
     }
+    // Skip if the frame is not raw
+    vframe_to_send_ = std::dynamic_pointer_cast<core::RawVideoFrame>(frame_to_send);
+    if (!vframe_to_send_) {
+        log[log::warning] << "Only raw frames are currently supported.";
+        return true;
+    }
+    // Skip if NDI does not support the format
+    NDIlib_FourCC_type_e ndi_fmt;
+    try {
+        ndi_fmt = yuri_format_to_ndi(vframe_to_send_->get_format());
+    } catch (const exception::Exception& e) {
+        log[log::warning] << "Raw frame with format \"" << core::raw_format::get_format_name(vframe_to_send_->get_format()) << "\" not supported by NDI library.";
+        return true;
+    }
+    NDIlib_video_frame_v2_t NDI_video_frame;
+    NDI_video_frame.xres = vframe_to_send_->get_width();
+    NDI_video_frame.yres = vframe_to_send_->get_height();
+    NDI_video_frame.FourCC = ndi_fmt;
+    NDI_video_frame.line_stride_in_bytes = 0; // autodetect
+    if (fps_ > 0 && fps_ == std::ceil(fps_)) {
+        NDI_video_frame.frame_rate_N = 1000*fps_;
+        NDI_video_frame.frame_rate_D = 1000;
+    } else if (fps_ > 0) {
+        int fps = std::ceil(fps_);
+        NDI_video_frame.frame_rate_N = 1000*fps;
+        NDI_video_frame.frame_rate_D = 1001;
+    }
+    NDIlib_tally_t NDI_tally;
+    NDIlib_->send_get_tally(pNDI_send_, &NDI_tally, 0);
+    NDI_video_frame.p_data = PLANE_RAW_DATA(vframe_to_send_,0);
+    NDIlib_->send_send_video_v2(pNDI_send_, &NDI_video_frame);
     return true;
 }
 
