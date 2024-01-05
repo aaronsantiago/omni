@@ -91,7 +91,7 @@ void NDIOutput::run() {
 }
 
 void NDIOutput::audio_sender() {
-    while (running() && audio_enabled_) {
+    while (still_running() && audio_enabled_) {
         aframe_to_send_ = std::dynamic_pointer_cast<core::RawAudioFrame>(pop_frame(1));
         if (aframe_to_send_) {
             NDIlib_audio_frame_interleaved_16s_t NDI_audio_frame;
@@ -109,7 +109,7 @@ void NDIOutput::audio_sender() {
 
 void NDIOutput::events_sender() {
     NDIlib_metadata_frame_t metadata_cmd;
-    while (running()) {
+    while (still_running()) {
         while (NDIlib_->send_capture(pNDI_send_, &metadata_cmd, 0) == NDIlib_frame_type_metadata) {
             try {
                 // Get the parser
