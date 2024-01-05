@@ -121,7 +121,7 @@ void NDIOutput::events_sender() {
                 // Check its a node
                 if ((!p_node) || (p_node->type() != rapidxml::node_element)) continue;
                 // Get the values
-                if (!::strcasecmp(p_node->name(), "ntk_ptz_pan_tilt_speed")) {    
+                if (!::strcasecmp(p_node->name(), "ntk_ptz_pan_tilt_speed")) {
                     const rapidxml::xml_attribute<char>* p_pan_speed = p_node->first_attribute("pan_speed");
                     const rapidxml::xml_attribute<char>* p_tilt_speed = p_node->first_attribute("tilt_speed");
                     const float pan_speed = p_pan_speed ? (float)::atof(p_pan_speed->value()) : 0.0f;
@@ -133,7 +133,7 @@ void NDIOutput::events_sender() {
                 // Not a valid message
             }
         }
-        ThreadBase::sleep(10_us);
+        ThreadBase::sleep(1_ms);
     }
 }
 
