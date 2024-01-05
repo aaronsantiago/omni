@@ -18,8 +18,9 @@
 #include <Processing.NDI.Lib.h>
 
 namespace yuri {
-
 namespace ndi {
+
+const size_t ndi_wait_time_ms_ = 500;
 
 class NDIOutput:public core::IOThread, public event::BasicEventProducer, public event::BasicEventConsumer {
 public:
@@ -52,7 +53,6 @@ private:
 };
 
 }
-
 }
 
 #endif /* NDIOUTPUT_H_ */

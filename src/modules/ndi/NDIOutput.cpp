@@ -110,7 +110,7 @@ void NDIOutput::audio_sender() {
 void NDIOutput::events_sender() {
     NDIlib_metadata_frame_t metadata_cmd;
     while (still_running()) {
-        while (NDIlib_->send_capture(pNDI_send_, &metadata_cmd, 0) == NDIlib_frame_type_metadata) {
+        while (NDIlib_->send_capture(pNDI_send_, &metadata_cmd, ndi_wait_time_ms_) == NDIlib_frame_type_metadata) {
             try {
                 // Get the parser
                 std::string xml(metadata_cmd.p_data);
@@ -133,7 +133,6 @@ void NDIOutput::events_sender() {
                 // Not a valid message
             }
         }
-        ThreadBase::sleep(1_ms);
     }
 }
 
@@ -143,7 +142,7 @@ bool NDIOutput::step() {
     if (!frame_to_send)
         return true;
     // Skip if there are no connections
-    if (!NDIlib_->send_get_no_connections(pNDI_send_, 500)) {
+    if (!NDIlib_->send_get_no_connections(pNDI_send_, ndi_wait_time_ms_)) {
         return true;
     }
     // Skip if the frame is not raw
